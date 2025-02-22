@@ -1,2 +1,2 @@
 # Donasi
-sedikit rupiahmu akan berdampak besar bagi yang membutuhkan
+sedikit rupiahmu akan berdampak besar bagi yang membutuhkan hahaha
