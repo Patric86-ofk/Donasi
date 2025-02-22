@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Donasi</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #f8f9fa; }
+        .content-box { background: white; border-radius: 10px; padding: 20px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); }
+    </style>
+</head>
+<body onload="fetchData()">
+
+    <div class="container py-5">
+        <div class="content-box">
+            <h1 class="text-center fw-bold mb-4">Bantu Mereka yang Membutuhkan</h1>
+            <p class="text-center fs-5">Setiap donasi yang Anda berikan sangat berarti bagi yang Membutuhkan.</p>
+
+            <div class="text-center">
+                <button class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#donationModal">Donasi Sekarang</button>
+            </div>
+
+            <!-- Modal Donasi -->
+            <div class="modal fade" id="donationModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content p-4">
+                        <h2 class="text-center mb-3">Donasi melalui QRIS</h2>
+                        <img src="qris-code.png" alt="QRIS" class="img-fluid d-block mx-auto mb-3" style="max-width: 200px;">
+                        <p class="text-center">Atau transfer ke: <strong>Bank Jago - 107557725564</strong></p>
+                        <h5 class="text-center mt-3">Konfirmasi Donasi</h5>
+                        <input type="text" id="namaDonatur" class="form-control mb-2" placeholder="Nama Anda">
+                        <input type="number" id="jumlahDonasi" class="form-control mb-2" placeholder="Jumlah Donasi">
+                        <div class="text-center">
+                            <button id="konfirmasiDonasi" class="btn btn-primary">Konfirmasi Donasi</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h2 class="mt-5 fw-bold">Daftar Donatur</h2>
+            <ul id="donatur-list" class="list-group mt-3"></ul>
+
+            <h3 class="mt-4 fw-bold">Total Donasi: <span id="total-donasi">Rp 0</span></h3>
+
+            <h2 class="mt-5 fw-bold">Update Video & Foto</h2>
+            <div id="foto-section" class="card p-3 shadow-sm"></div>
+            <div id="video-section" class="card p-3 shadow-sm mt-3"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById("konfirmasiDonasi").addEventListener("click", tambahDonatur);
+        });
+
+        function fetchData() {
+            fetch("data.json")
+                .then(res => res.json())
+                .then(data => {
+                    let total = 0;
+                    document.getElementById("donatur-list").innerHTML = data.donatur.map(d => {
+                        total += parseInt(d.jumlah);
+                        return `<li class="list-group-item d-flex justify-content-between">
+                                    <span>${d.nama}</span> <strong>Rp${d.jumlah.toLocaleString()}</strong>
+                                </li>`;
+                    }).join("");
+
+                    document.getElementById("total-donasi").textContent = `Rp ${total.toLocaleString()}`;
+                    document.getElementById("foto-section").innerHTML = data.foto ? 
+                        `<img src="${data.foto}" alt="Foto Bantuan" class="w-100">` : `<p class="text-muted text-center">Belum ada foto</p>`;
+                    document.getElementById("video-section").innerHTML = data.video ? 
+                        `<video controls class="w-100"><source src="${data.video}" type="video/mp4"></video>` : 
+                        `<p class="text-muted text-center">Belum ada video</p>`;
+                });
+        }
+
+        function tambahDonatur() {
+            let nama = document.getElementById("namaDonatur").value;
+            let jumlah = document.getElementById("jumlahDonasi").value;
+            if (!nama || !jumlah) return alert("Harap isi semua kolom!");
+
+            fetch("upload.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ nama, jumlah })
+            }).then(() => { alert("Donasi berhasil!"); fetchData(); });
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
